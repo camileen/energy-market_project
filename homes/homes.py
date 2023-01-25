@@ -23,7 +23,10 @@ def action(task, rate, energy):
   coeff = random.randint(0, 10) # random integer between 0 and 10 included
   rand_energy = coeff*random.random() # random amount of energy between 0 and 10 excluded
   sleep(1/rate)
-  return energy + rand_energy if task == "produce" else energy - rand_energy
+  if task == "produce":
+    return energy + rand_energy
+  elif task == "consume":
+    return energy if (energy - rand_energy < 0) else (energy - rand_energy)
 
 
 def init_rates(nb_homes):
