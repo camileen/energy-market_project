@@ -1,0 +1,74 @@
+/* home()
+* each home are initialised with initial energy, producing and consuming rates;
+* each of these parameters change over time;
+* they are childs of a parent homes process;
+* each home produce and consume their energy;
+* they can have multiple interactions with other homes and the market:
+*   - if surplus of energy, one can give its energy to others in need
+*                           or can sell it to the market
+*   - if lack of energy, one can ask some to other homes
+*                        or can buy some to the market;
+*/
+
+function home(STARTING_PRODUCING_RATE, STARTING_CONSUMING_RATE, INITIAL_ENERGY):
+  energy = init(INITIAL_ENERGY)
+  producing_rate = STARTING_PRODUCING_RATE
+  consuming_rate = STARTING_CONSUMING_RATE
+  while True:
+    consume()
+    produce()
+    energy_trade()
+
+=========================================================================================
+
+/* energy_trade()
+* this function is used by each home to exchange energy with each other and the market;
+* each homes can ask for energy between each other and buy energy to the market
+* there are 3 types of energy trade:
+*   - only gives energy
+*   - only sells to the market
+*   - first gives and then sells the market;
+*/
+function energy_trade(type):
+  exchanged_energy, price = 0, 0
+  if surplus:
+    match type:
+      case GIVE_ONLY:
+        exchanged_energy = give()
+
+      case SELL_ONLY:
+        exchanged_energy, price = send_market_sell_request()
+    
+      case default:
+        try:
+          exchanged_energy = give()
+        except NoNeed:
+          exchanged_energy, price = send_market_sell_request()
+  else: // lack of energy
+    try:
+      send_home_request()
+      exchanged_energy  = wait_response()
+    except NoGivers:
+      send_market_request()
+      exchanged_energy = wait_response()
+    except EnoughEnergy:
+      continue
+
+  update_state()
+
+========================================================================================
+
+function give():
+  gave_energy = False
+  while not gave_nergy:
+    request = get_home_request()
+    gave_energy = send_home_response()
+
+=========================================================================================
+  
+
+  
+  
+
+
+
