@@ -1,61 +1,47 @@
-from multiprocessing import Process
-from time import sleep
 import random
-import os
 
-
-def home(interaction, rates):
-  print("********** START OF HOME", os.getpid(), "**********")
-  PRODUCING_RATE =  rates[0] # example : X times per second
-  CONSUMPTION_RATE = rates[1]
-  energy = 0
-
-  #while True:
+class Home:
+  def __init__(self, inital_params, home_id):
+    (initial_energy, initial_producing_rate, initial_consuming_rate) = inital_params
+    self.home_id = home_id
+    self.energy = initial_energy
+    self.producing_rate = initial_producing_rate
+    self.consuming_rate = initial_consuming_rate
   
-  try:
-    energy = action("produce", PRODUCING_RATE, energy)
-    print("production of home", str(os.getpid()) +":", "energy =", energy)
-    energy = action("consume", CONSUMPTION_RATE, energy)
-    print("consumption of home", str(os.getpid()) +":", "energy =", energy)
-  except (ValueError):
-    print("Home", str(os.getpid()) + " -->", "Lack of energy!")
-  #interaction()
-  #print("after interaction of home", str(os.getpid()) +":", "energy =", energy)
-  print("********** END OF HOME", os.getpid(), "**********")
+  def print_state(self):
+    print("**** HOME " + str(self.home_id) + " ****")
+    print("Current energy: " + str(self.energy))
+    print("Current producing rate: " + str(self.producing_rate) + " times/s")
+    print("Current consuming rate: " + str(self.consuming_rate) + " times/s")
 
-def action(task, rate, energy):
-  
-  if energy < 0: raise ValueError
-  
-  coeff = random.randint(0, 10) # random integer between 0 and 10 included
-  rand_energy = coeff*random.random() # random amount of energy between 0 and 10 excluded
-  sleep(1/rate)
+  def consume(self):
+    pass
 
-  if task == "produce":
-    return energy + rand_energy
-  elif task == "consume":
-    if (energy - rand_energy) < 0 :
-      raise ValueError
-    return (energy - rand_energy)
+  def produce(self):
+    pass
+
+  def exchange(self):
+    pass
+
+  def run(self):
+    while True:
+      self.consume()
+      self.produce()
+      self.exchange()
 
 
-def init_rates(nb_homes):
-  rates = []
-  for _ in range(nb_homes):
-    rates.append((random.randint(1, 5), random.randint(1, 5)))
-  return rates
-
+def init_param(HOMES_NB):
+    params = []
+    for i in range(HOMES_NB):
+      params.append((random.randint(1, 10), random.randint(1, 5), random.randint(1, 5)))
+    return params
 
 if __name__ == "__main__":
-  NB_HOMES = 3
-  homes = [] # list of child processes
-  trade_policies = [1, 2, 3] # all possible energy trade policies
-  rates = init_rates(NB_HOMES) # initial rates for each home : [(producing rate, consuming rate), ...]
-  print("**** initial rates:", rates)
+  HOMES_NB = 3
+  homes = []
+  inital_params = init_param(HOMES_NB)
 
-  for i in range(NB_HOMES):
-    homes.append( Process(target=home, args=(trade_policies[i], rates[i])) )
-    homes[i].start()
-  
-  for i in range(NB_HOMES):
-    homes[i].join()
+  for i in range(3):
+    homes.append(Home(inital_params[i], i + 1))
+    #homes[i].print_state()
+    #homes[i].run()

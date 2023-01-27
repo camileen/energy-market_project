@@ -17,11 +17,11 @@ function home(STARTING_PRODUCING_RATE, STARTING_CONSUMING_RATE, INITIAL_ENERGY):
   while True:
     consume()
     produce()
-    energy_trade()
+    exchange()
 
 =========================================================================================
 
-/* energy_trade()
+/* exchange()
 * this function is used by each home to exchange energy with each other and the market;
 * each homes can ask for energy between each other and buy energy to the market
 * there are 3 types of energy trade:
@@ -29,7 +29,7 @@ function home(STARTING_PRODUCING_RATE, STARTING_CONSUMING_RATE, INITIAL_ENERGY):
 *   - only sells to the market
 *   - first gives and then sells the market;
 */
-function energy_trade(type):
+function exchange(type):
   exchanged_energy, price = 0, 0
   if surplus:
     match type:
