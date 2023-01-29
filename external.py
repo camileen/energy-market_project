@@ -60,16 +60,18 @@
 #         if ch == '\x01': # Ctrl+A
 #             os.kill(os.getpid(), signal.SIGUSR1)
 
-import os
-import signal
-import market
+# import os
+# import signal
+# import market
 
-print("market process id:", market.pid())
+# print("market process id:", market.pid())
 
-pid = int(input("Enter the PID of the receiver process: "))
+# pid = int(input("Enter the PID of the receiver process: "))
 
-os.kill(pid, signal.SIGUSR1)
-print("Signal sent!")
+# os.kill(pid, signal.SIGUSR1)
+# print("Signal sent!")
+
+
 
             
 

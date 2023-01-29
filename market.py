@@ -13,7 +13,7 @@ from multiprocessing import Process, Lock
 import socket
 import termios
 import tty
-#import external
+import window
 
 season_list = ["Spring", "Summer", "Automn", "Winter"]
 mutex = Lock()
@@ -37,7 +37,7 @@ class Market:
         self.season_change = season_change
         self.market_change_return = market_change_return
 
-        print("Market Process id:" , os.getpid())
+        #print("Market Process id:" , os.getpid())
         self.show_season = Process(target=self.get_season)
         self.show_season.start()
         self.show_weather = Thread(target=self.get_weather)
@@ -45,11 +45,14 @@ class Market:
         self.socket = Thread(target=self.handle_socket)
         self.socket.start()
 
-        signal.signal(signal.SIGUSR1, self.signal_handler)
-        print("Market Process id:" , os.getpid())
+        time.sleep(5)
+        signal.signal(signal.SIGUSR1, self.signal_handler1)
+        self.childProcess = Process(target=window.Window)
+        self.childProcess.start()
+        self.childProcess.join()
         # self.external_process = Process(target=self.recieve_signal)
         # self.external_process.start() 
-        signal.pause()
+        #signal.pause()
 
 
     def get_season(self): 
@@ -117,22 +120,11 @@ class Market:
             termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
         return ch
 
-    def signal_handler(self,signum, frame):
+    def signal_handler1(self,signum, frame):
         print("Signal recieve!!!")
+        #os.kill(self.childProcess.pid, signal.SIGKILL)
 
     
-            
-    #def run(self):
-        # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
-        #     server_socket.setblocking(False)
-        #     server_socket.bind((HOST, PORT))
-        #     server_socket.listen(2)
-        #     while serve:
-        #         readable, writable, error = select.select([server_socket], [], [], 1)
-        #         if server_socket in readable:
-        #             client_socket, address = server_socket.accept()
-        #             p = Process(target=client_handler, args=(client_socket, address))
-        #             p.start()
     
 
     
