@@ -1,5 +1,6 @@
 # Ignore files
 *.txt
+market/market_xinyi.py
 
 # Ignore directories
 __pycache__/
