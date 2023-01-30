@@ -96,6 +96,7 @@ class Market:
     def handle_socket(self,client_socket, address):
         print("Connected to client: ", address)
         data = client_socket.recv(8)
+        print("Server receive:", struct.unpack('2d',data))
         while len(data):
             #price = round(self.get_price(), 4)
             message = [self.price,0]
@@ -103,6 +104,7 @@ class Market:
             client_socket.send(data_send)
             data = client_socket.recv(1024)
         print("Disconnecting from client: ", address)
+        client_socket.close()
 
 
 
