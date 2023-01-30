@@ -7,8 +7,43 @@ energy_trades = [GIVE_ONLY, SELL_ONLY, GIVE_AND_SELL]
 
 
 class Home:
-  def __init__(self, inital_params, home_id, energy_trade):
-    (initial_energy, initial_producing_rate, initial_consuming_rate) = inital_params
+  """
+  A class that represent an Home
+
+  Attributes
+  ----------
+  initial_params : str tuple
+    The initial energy, producing and consuming rates of the home
+  home_id : int
+    A number that identify the home
+  energy_trade : int
+    The type of homes' energy trade
+
+  Methods
+  -------
+  print_state()
+    Prints home's id and current energy, producing and consuming rates
+  consume()
+    Decreases the energy of the home
+  produce()
+    Increses the energy of the home
+  run()
+    Launches the home in an infinite loop to consume, produce and exchange energy
+  """
+
+  def __init__(self, initial_params, home_id, energy_trade):
+    """
+    Parameters
+    ----------
+    initial_params : str tuple
+      The initial energy, producing and consuming rates of the home
+    home_id : int
+      A number that identify the home
+    energy_trade : int
+      The type of homes' energy trade
+    """
+
+    (initial_energy, initial_producing_rate, initial_consuming_rate) = initial_params
     self.home_id = home_id
     self.energy = initial_energy
     self.producing_rate = initial_producing_rate
@@ -17,12 +52,21 @@ class Home:
     self.energy_trade = energy_trade
   
   def print_state(self):
+    """
+    Prints home's id and current energy, producing and consuming rates
+    """
+    
     print("**** HOME " + str(self.home_id) + " ****")
     print("Current energy: " + str(self.energy))
     print("Current producing rate: " + str(self.producing_rate) + " times/s")
     print("Current consuming rate: " + str(self.consuming_rate) + " times/s")
 
   def consume(self):
+    """
+    Generates a random amount energy that is substrat from the inital energy
+    only if the result is positive
+    """
+
     consumed_energy = random.randint(1, 5)
     if (self.energy - consumed_energy) > 0:
       self.energy = self.energy - consumed_energy
@@ -31,6 +75,11 @@ class Home:
       print("CONSUME ERROR : lack of energy!")
 
   def produce(self):
+    """
+    Generates a random amount energy that is added to the inital energy
+    only if the latter is above the energy threshold of the home
+    """
+
     if (self.energy > self.energy_threshold):
       produced_energy = random.randint(1, 5)
       self.energy = self.energy + produced_energy
@@ -39,36 +88,17 @@ class Home:
       print("PRODUCE ERROR : lack of energy!")
   
   def run(self):
+    """
+    Launches the home in an infinite loop to consume, produce and exchange energy
+    in this order
+    """
+
     #while True:
-      self.consume()
-      self.produce()
-      self.exchange()
+    self.consume()
+    self.produce()
+    self.exchange()
 
-"""
-  def exchange(self):
-    exchanged_energy, price = 0, 0
-    if self.energy > self.energy_threshold:
-      if (self.energy_trade == GIVE_ONLY):
-        exchanged_energy = give()
-      elif (self.energy_trade == SELL_ONLY):
-        exchanged_energy, price = send_market_sell_request()
-      elif (self.energy_trade == GIVE_AND_SELL):
-        try:
-            exchanged_energy = give()
-        except NoNeed:
-          exchanged_energy, price = send_market_sell_request()
-    else: # lack of energy
-      try:
-        send_home_request()
-        exchanged_energy  = wait_response()
-      except NoGivers:
-        send_market_request()
-        exchanged_energy = wait_response()
-      except EnoughEnergy:
-        continue
 
-    update_state()
-"""
   
 
 
