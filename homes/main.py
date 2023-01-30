@@ -1,6 +1,6 @@
 import random
 import sysv_ipc
-import threading
+import multiprocessing
 
 import Home
 
@@ -41,7 +41,7 @@ if __name__ == "__main__":
   mq_response = sysv_ipc.MessageQueue(KEYS[1], sysv_ipc.IPC_CREAT)
 
   for i in range(HOMES_NB):
-    homes.append(threading.Thread(target=home, args=(initial_params[i], i + 1, Home.ENERGY_TRADES[0], KEYS)))
+    homes.append(multiprocessing.Process(target=home, args=(initial_params[i], i + 1, Home.ENERGY_TRADES[0], KEYS)))
     homes[i].start()
   
   for i in range(HOMES_NB):
