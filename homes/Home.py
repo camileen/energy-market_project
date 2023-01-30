@@ -3,7 +3,7 @@ import random
 GIVE_ONLY = 1
 SELL_ONLY = 2
 GIVE_AND_SELL = 3
-energy_trades = [GIVE_ONLY, SELL_ONLY, GIVE_AND_SELL]
+ENERGY_TRADES = [GIVE_ONLY, SELL_ONLY, GIVE_AND_SELL]
 
 
 class Home:
@@ -55,7 +55,7 @@ class Home:
     """
     Prints home's id and current energy, producing and consuming rates
     """
-    
+
     print("**** HOME " + str(self.home_id) + " ****")
     print("Current energy: " + str(self.energy))
     print("Current producing rate: " + str(self.producing_rate) + " times/s")
@@ -96,7 +96,7 @@ class Home:
     #while True:
     self.consume()
     self.produce()
-    self.exchange()
+    #self.exchange()
 
 
   

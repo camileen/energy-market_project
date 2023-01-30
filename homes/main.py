@@ -1,6 +1,6 @@
 import random
 
-import homes
+import Home
 
 
 def init_params(HOMES_NB):
@@ -29,7 +29,7 @@ if __name__ == "__main__":
   inital_params = init_params(HOMES_NB)
   
   for i in range(HOMES_NB):
-    homes.append(homes.Home(inital_params[i], i + 1, homes.energy_trades[i%(len(homes.energy_trades))]))
+    homes.append(Home.Home(inital_params[i], i + 1, Home.ENERGY_TRADES[i%(len(Home.ENERGY_TRADES))]))
     homes[i].print_state()
     homes[i].run()
   
