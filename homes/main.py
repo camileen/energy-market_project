@@ -1,4 +1,6 @@
 import random
+import sysv_ipc
+import threading
 
 import Home
 
@@ -22,18 +24,26 @@ def init_params(HOMES_NB):
     params.append((random.randint(1, 10), random.randint(1, 5), random.randint(1, 5)))
   return params
 
+def home(initial_params, id, energy_trade, keys):
+  home = Home.Home(initial_params, id, energy_trade, keys)
+  home.print_state()
+  home.run()
+
 
 if __name__ == "__main__":
-  HOMES_NB = 3
+  HOMES_NB = 2
   homes = []
-  inital_params = init_params(HOMES_NB)
+  #inital_params = init_params(HOMES_NB)
+  initial_params = [(1, 5, 6), (100, 7, 8)] 
+ 
+  KEYS = [128, 256]
+  mq_demand = sysv_ipc.MessageQueue(KEYS[0], sysv_ipc.IPC_CREAT)
+  mq_response = sysv_ipc.MessageQueue(KEYS[1], sysv_ipc.IPC_CREAT)
+
+  for i in range(HOMES_NB):
+    homes.append(threading.Thread(target=home, args=(initial_params[i], i + 1, Home.ENERGY_TRADES[0], KEYS)))
+    homes[i].start()
   
   for i in range(HOMES_NB):
-    homes.append(Home.Home(inital_params[i], i + 1, Home.ENERGY_TRADES[i%(len(Home.ENERGY_TRADES))]))
-    homes[i].print_state()
-    homes[i].run()
+    homes[i].join()
   
-  print("\n")
-  for i in range(HOMES_NB):
-    homes[i].print_state()
-  print("\n\n")
