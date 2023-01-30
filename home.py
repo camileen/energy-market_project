@@ -2,7 +2,7 @@ import socket
 import struct
 
 HOST = "localhost"
-PORT = 23334
+PORT = 23333
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
     client_socket.connect((HOST, PORT))
     m = input("message> ")

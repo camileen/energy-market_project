@@ -29,7 +29,7 @@ def signal_handler(sig, frame):
     for child in active_children():
         child.kill()
     print("Exit!!!")
-    #sys.exit(0)
+    sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
 

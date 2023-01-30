@@ -23,9 +23,10 @@ T_CONSTANT = 0.001   # temperature
 R_CONSTANT = 0.002   # rain
 E_CONSTANT = 0.01    # source
 S_COMSTANT = 0.1     # season
+PRICE = 1.45
 
 HOST = "localhost"
-PORT = 23334
+PORT = 23333
 
 
 # ---------------------------- Market ---------------------------------------------------------
@@ -36,17 +37,19 @@ class Market:
         self.meteo = meteo
         self.season_change = season_change
         self.market_change_return = market_change_return
+        self.price = PRICE
 
         #print("Market Process id:" , os.getpid())
         self.show_season = Process(target=self.get_season)
         self.show_season.start()
         self.show_weather = Thread(target=self.get_weather)
         self.show_weather.start()
-        self.socket = Thread(target=self.handle_socket)
-        self.socket.start()
+        """ self.socket = Thread(target=self.handle_socket)
+        self.socket.start() """
 
         time.sleep(5)
         signal.signal(signal.SIGUSR1, self.signal_handler1)
+        signal.signal(signal.SIGUSR2, self.signal_handler_promotion)
         self.childProcess = Process(target=window.Window)
         self.childProcess.start()
         self.childProcess.join()
@@ -78,10 +81,9 @@ class Market:
                     mutex.release()
 
     def get_price(self):
-        price = 0.145
-        price = 0.99*price + 0.001*(self.meteo_shared[0]-3*self.meteo_shared[1])
-        print("instant price:", price)
-        return price
+        self.price = 0.99*self.price + 0.001*(self.meteo_shared[0]+3*self.meteo_shared[1])
+        print("instant price:", self.price)
+        return self.price
 
     def handle_socket(self):
         while True:
@@ -94,34 +96,22 @@ class Market:
                     data = client_socket.recv(8)
                     while len(data):
                         #price = round(self.get_price(), 4)
-                        price = self.get_price()
-                        message = [price,0]
+                        message = [self.price,0]
                         data_send = struct.pack('2d',*message)
                         client_socket.send(data_send)
                         data = client_socket.recv(1024)
                     print("Disconnecting from client: ", address)
 
-    def recieve_signal(self):
-        while True:
-            print("enter something:")
-            ch = self.getch()
-            if ch == '\x01': # Ctrl+A
-                print("got it")
-                os.kill(os.getpid(), signal.SIGUSR1)
-                time.sleep(2)
-
-    def getch(self):
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
-        try:
-            tty.setraw(fd)
-            ch = sys.stdin.read(1)
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-        return ch
-
     def signal_handler1(self,signum, frame):
-        print("Signal recieve!!!")
+        print("Crise recieve!!!")
+        self.price += 0.5
+        print("crise: ---------------",self.price)
+        #os.kill(self.childProcess.pid, signal.SIGKILL)
+
+    def signal_handler_promotion(self,signum, frame):
+        print("Promotion recieve!!!")
+        self.price -= 0.5
+        print("promo: ---------------",self.price)
         #os.kill(self.childProcess.pid, signal.SIGKILL)
 
     
