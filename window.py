@@ -7,7 +7,7 @@ class Window:
         # Create the main window
         self.root = tk.Tk()
         self.root.title("Finger of GOD")
-        self.root.geometry("200x100")
+        self.root.geometry("300x100")
 
         # Create a submit button
         self.submit_button = tk.Button(self.root, text="Crise!!!", command=self.crise)

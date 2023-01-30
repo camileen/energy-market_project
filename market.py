@@ -13,7 +13,7 @@ from multiprocessing import Process, Lock
 import socket
 import termios
 import tty
-import window
+import external
 
 season_list = ["Spring", "Summer", "Automn", "Winter"]
 mutex = Lock()
@@ -44,19 +44,14 @@ class Market:
         self.show_season.start()
         self.show_weather = Thread(target=self.get_weather)
         self.show_weather.start()
-        """ self.socket = Thread(target=self.handle_socket)
-        self.socket.start() """
+        self.socket = Thread(target=self.handle_socket)
+        self.socket.start()
 
-        time.sleep(5)
         signal.signal(signal.SIGUSR1, self.signal_handler1)
         signal.signal(signal.SIGUSR2, self.signal_handler_promotion)
-        self.childProcess = Process(target=window.Window)
-        self.childProcess.start()
-        self.childProcess.join()
-        # self.external_process = Process(target=self.recieve_signal)
-        # self.external_process.start() 
-        #signal.pause()
-
+        self.external_process = Process(target=external.Window)
+        self.external_process.start()
+        self.external_process.join()
 
     def get_season(self): 
         i=0
@@ -86,9 +81,9 @@ class Market:
         return self.price
 
     def handle_socket(self):
-        while True:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
-                server_socket.bind((HOST, PORT))
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
+            server_socket.bind((HOST, PORT))
+            while True:
                 server_socket.listen()
                 client_socket, address = server_socket.accept()
                 with client_socket:
