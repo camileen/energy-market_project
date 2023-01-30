@@ -35,6 +35,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 
 
+
 # Shared Memory------------
 meteo = [0,0]
 meteo_shared = Array('i', [0,0])
@@ -53,7 +54,7 @@ market_process.start()
 season_process = Process(target= season.Season, args=(season_change,weather_change_return,market_change_return))
 season_process.start()
 
-
+signal.pause()
 
 
 

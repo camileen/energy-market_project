@@ -44,14 +44,18 @@ class Market:
         self.show_season.start()
         self.show_weather = Thread(target=self.get_weather)
         self.show_weather.start()
-        self.socket = Thread(target=self.handle_socket)
-        self.socket.start()
-
+        
         signal.signal(signal.SIGUSR1, self.signal_handler1)
         signal.signal(signal.SIGUSR2, self.signal_handler_promotion)
         self.external_process = Process(target=external.Window)
         self.external_process.start()
-        self.external_process.join()
+        #self.external_process.join()
+
+        #self.socket = Thread(target=self.market_socket)
+        #self.socket.start()
+
+        self.market_socket()
+
 
     def get_season(self): 
         i=0
@@ -80,22 +84,27 @@ class Market:
         print("instant price:", self.price)
         return self.price
 
-    def handle_socket(self):
+    def market_socket(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
             server_socket.bind((HOST, PORT))
+            server_socket.listen()
             while True:
-                server_socket.listen()
                 client_socket, address = server_socket.accept()
-                with client_socket:
-                    print("Connected to client: ", address)
-                    data = client_socket.recv(8)
-                    while len(data):
-                        #price = round(self.get_price(), 4)
-                        message = [self.price,0]
-                        data_send = struct.pack('2d',*message)
-                        client_socket.send(data_send)
-                        data = client_socket.recv(1024)
-                    print("Disconnecting from client: ", address)
+                home_socket_thread = Thread(target=self.handle_socket, args=(client_socket, address))
+                home_socket_thread.start()
+
+    def handle_socket(self,client_socket, address):
+        print("Connected to client: ", address)
+        data = client_socket.recv(8)
+        while len(data):
+            #price = round(self.get_price(), 4)
+            message = [self.price,0]
+            data_send = struct.pack('2d',*message)
+            client_socket.send(data_send)
+            data = client_socket.recv(1024)
+        print("Disconnecting from client: ", address)
+
+
 
     def signal_handler1(self,signum, frame):
         print("Crise recieve!!!")
