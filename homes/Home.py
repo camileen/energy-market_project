@@ -73,8 +73,9 @@ class Home:
 
     #print("**** HOME " + str(self.home_id) + " ****")
     print("Home "+ str(self.home_id) + " energy: " + str(self.energy))
-    print("Home "+ str(self.home_id) + " producing rate: " + str(self.producing_rate) + " times/s")
-    print("Home "+ str(self.home_id) + " consuming rate: " + str(self.consuming_rate) + " times/s")
+    #print("Home "+ str(self.home_id) + " producing rate: " + str(self.producing_rate) + " times/s")
+    #print("Home "+ str(self.home_id) + " consuming rate: " + str(self.consuming_rate) + " times/s")
+    print("Home "+ str(self.home_id) + " money: " + str(self.money))
 
   def consume(self):
     """
@@ -136,7 +137,13 @@ class Home:
           msg = [demand, 0]
           client_socket.sendall(struct.pack('2d', *msg))
           response = client_socket.recv(1024)
-          print("Market's response: ", struct.unpack('2d', response))
+          price = struct.unpack('2d', response)[0]
+          print("Market's response: current price of energy is", price)
+          # Update energy and money
+          if self.money >= (price * demand):
+            self.money -= price * demand
+            self.energy += demand
+          self.print_state()
       except EnoughEnergy:
         pass
 
