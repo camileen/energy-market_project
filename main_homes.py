@@ -1,8 +1,8 @@
-import random
-import sysv_ipc
 import multiprocessing
+import sysv_ipc
+import random
 
-import Home
+import homes.Home as Home
 
 
 def init_params(HOMES_NB):
