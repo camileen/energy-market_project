@@ -121,33 +121,12 @@ class Home:
     else: # lack of energy
       print("Home "+ str(self.home_id) + ": lack of energy in exchange()\n")
       demand = self.energy_threshold - self.energy + 1
-      
       try:
-        # Ask givers and take from givers
-        msg = str(demand).encode()
-        print("Home "+ str(self.home_id) +" tries to send a demand: " + str(demand))
-        self.mq_demand.send(msg, type=self.home_id)
-        print("Home "+ str(self.home_id) + " tries to receive a response...")
-        time.sleep(3)
-        _, _ = self.mq_response.receive(block=False,type=self.home_id)
-        self.energy += demand
-        self.print_state()
+        self.ask_home(demand)
       except sysv_ipc.BusyError:
-        # Cancel my demand
-        _, _ = self.mq_demand.receive(type=self.home_id)
-        # Buy energy to the market
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
-          client_socket.connect((HOST, PORT))
-          msg = [demand, 0]
-          client_socket.sendall(struct.pack('2d', *msg))
-          response = client_socket.recv(1024)
-          price = struct.unpack('2d', response)[0]
-          print("Market's response: current price of energy is", price)
-          # Update energy and money
-          if self.money >= (price * demand):
-            self.money -= price * demand
-            self.energy += demand
-          self.print_state()
+        _, _ = self.mq_demand.receive(type=self.home_id) # Cancel my demand
+        self.buy_to_market(demand)
+        
 
   def send_to_market(self):
     offer = self.energy - self.energy_threshold
@@ -165,6 +144,29 @@ class Home:
       self.energy -= offer
       self.print_state()
 
+  def buy_to_market(self, demand):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+      client_socket.connect((HOST, PORT))
+      msg = [demand, 0]
+      client_socket.sendall(struct.pack('2d', *msg))
+      response = client_socket.recv(1024)
+      price = struct.unpack('2d', response)[0]
+      print("Market's response: current price of energy is", price)
+      # Update energy and money
+      if self.money >= (price * demand):
+        self.money -= price * demand
+        self.energy += demand
+      self.print_state()
+
+  def ask_home(self, demand):
+    msg = str(demand).encode()
+    print("Home "+ str(self.home_id) +" tries to send a demand: " + str(demand))
+    self.mq_demand.send(msg, type=self.home_id)
+    print("Home "+ str(self.home_id) + " tries to receive a response...")
+    time.sleep(3)
+    _, _ = self.mq_response.receive(block=False,type=self.home_id)
+    self.energy += demand
+    self.print_state()
 
   def give(self):
     surplus = self.energy - self.energy_threshold
