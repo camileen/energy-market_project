@@ -111,7 +111,20 @@ class Home:
         except sysv_ipc.BusyError:
           pass
       elif self.energy_trade == SELL_ONLY:
-        self.send_market_sell_request()
+        offer = self.energy - self.energy_threshold
+        print("Home "+ str(self.home_id) + " want to sell: " + str(offer))
+        # Sell energy to the market
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+          client_socket.connect((HOST, PORT))
+          msg = [offer, 1]
+          client_socket.sendall(struct.pack('2d', *msg))
+          response = client_socket.recv(1024)
+          price = struct.unpack('2d', response)[0]
+          print("Market's response: current price of energy is", price)
+          # Update energy and money
+          self.money += price * offer
+          self.energy -= offer
+          self.print_state()
       elif self.energy_trade == GIVE_AND_SELL:
         try:
             self.give()
