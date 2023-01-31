@@ -5,6 +5,8 @@ import struct
 import time
 import sys
 
+from colors.bcolors import bcolors
+
 GIVE_ONLY = 1
 SELL_ONLY = 2
 GIVE_AND_SELL = 3
@@ -74,7 +76,7 @@ class Home:
       self.mq_demand = sysv_ipc.MessageQueue(keys[0])
       self.mq_response = sysv_ipc.MessageQueue(keys[1])
     except sysv_ipc.ExistentialError:
-      print("Cannot connect to message queue", keys, ", terminating.")
+      print(bcolors.FAIL + "Cannot connect to message queue", keys, ", terminating." + bcolors.ENDC)
       sys.exit(1) 
     
   def print_state(self):
@@ -82,11 +84,10 @@ class Home:
     Prints home's id and current energy, producing and consuming rates
     """
 
-    #print("**** HOME " + str(self.home_id) + " ****")
-    print("Home "+ str(self.home_id) + " energy: " + str(self.energy))
+    print("Home "+ str(self.home_id) + ": energy=" + str(self.energy) + ", money=" + str(self.money))
     #print("Home "+ str(self.home_id) + " producing rate: " + str(self.producing_rate) + " times/s")
     #print("Home "+ str(self.home_id) + " consuming rate: " + str(self.consuming_rate) + " times/s")
-    print("Home "+ str(self.home_id) + " money: " + str(self.money))
+
 
   def consume(self):
     """
@@ -97,9 +98,9 @@ class Home:
     consumed_energy = random.randint(1, 5)
     if (self.energy - consumed_energy) > 0:
       self.energy = self.energy - consumed_energy
-      print("Home "+ str(self.home_id) + " consumed energy: " + str(consumed_energy))
     else: 
-      print("Home "+ str(self.home_id) +" CONSUME ERROR : lack of energy!")
+      print(bcolors.FAIL + "Home "+ str(self.home_id) +" CONSUME ERROR : lack of energy!" + bcolors.ENDC)
+
 
   def produce(self):
     """
@@ -110,9 +111,9 @@ class Home:
     if (self.energy > self.energy_threshold):
       produced_energy = random.randint(1, 5)
       self.energy = self.energy + produced_energy
-      print("Home "+ str(self.home_id) + " produced energy: " + str(produced_energy))
     else:
-      print("Home "+ str(self.home_id) +" PRODUCE ERROR : lack of energy!")
+      print(bcolors.FAIL + "Home "+ str(self.home_id) +" PRODUCE ERROR : lack of energy!" + bcolors.ENDC)
+
 
   def exchange(self):
     """
@@ -134,13 +135,13 @@ class Home:
         except sysv_ipc.BusyError:
           self.send_to_market()
     else: # lack of energy
-      print("Home "+ str(self.home_id) + ": lack of energy in exchange()\n")
       demand = self.energy_threshold - self.energy + 1
       try:
         self.ask_home(demand)
       except sysv_ipc.BusyError:
         _, _ = self.mq_demand.receive(type=self.home_id) # Cancel my demand
         self.buy_to_market(demand)
+    self.print_state()
         
 
   def send_to_market(self):
@@ -150,7 +151,7 @@ class Home:
     """
 
     offer = self.energy - self.energy_threshold
-    print("Home "+ str(self.home_id) + " want to sell: " + str(offer))
+    print(bcolors.OKGREEN + "Home "+ str(self.home_id) + " want to sell: " + str(offer) + bcolors.ENDC)
     # Sells energy to the market
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
       client_socket.connect((HOST, PORT))
@@ -158,11 +159,11 @@ class Home:
       client_socket.sendall(struct.pack('2d', *msg))
       response = client_socket.recv(1024)
       price = struct.unpack('2d', response)[0]
-      print("Market's response: current price of energy is", price)
+      print(bcolors.OKGREEN + "Market's response: current price of energy is " + str(price) + bcolors.ENDC)
       # Update energy and money
       self.money += price * offer
       self.energy -= offer
-      self.print_state()
+
 
   def buy_to_market(self, demand):
     """
@@ -181,12 +182,11 @@ class Home:
       client_socket.sendall(struct.pack('2d', *msg))
       response = client_socket.recv(1024)
       price = struct.unpack('2d', response)[0]
-      print("Market's response: current price of energy is", price)
+      print(bcolors.OKCYAN + "Market's responds current price of energy is: " + str(price) + bcolors.ENDC)
       # Update energy and money
       if self.money >= (price * demand):
         self.money -= price * demand
         self.energy += demand
-      self.print_state()
 
 
   def ask_home(self, demand):
@@ -202,13 +202,12 @@ class Home:
     """
 
     msg = str(demand).encode()
-    print("Home "+ str(self.home_id) +" tries to send a demand: " + str(demand))
+    print(bcolors.WARNING + "Home "+ str(self.home_id) +" tries to send a demand: " + str(demand) + bcolors.ENDC)
     self.mq_demand.send(msg, type=self.home_id)
-    print("Home "+ str(self.home_id) + " tries to receive a response...")
+    print(bcolors.WARNING + "Home "+ str(self.home_id) + " tries to receive a response..." + bcolors.ENDC)
     time.sleep(3)
     _, _ = self.mq_response.receive(block=False,type=self.home_id)
     self.energy += demand
-    self.print_state()
 
 
   def give(self):
@@ -220,19 +219,17 @@ class Home:
     """
 
     surplus = self.energy - self.energy_threshold
-    print("Home "+ str(self.home_id) +" tries to get a demand...")
+    print(bcolors.FAIL + "Home "+ str(self.home_id) +" tries to get a demand..." + bcolors.ENDC)
     time.sleep(5)
     msg, home_id = self.mq_demand.receive(block=False)
     demand = int(msg.decode())
-    print("Home " + str(home_id) + " demands: " + msg.decode())
     if surplus >= demand:
-      print("Home "+ str(self.home_id) +" tries to send a response...")
+      print(bcolors.WARNING + "Home "+ str(self.home_id) +" tries to send a response..."  + bcolors.ENDC)
       self.mq_response.send("OK".encode(), type=home_id)
       self.energy -= demand
     else:
-      print("Home "+ str(self.home_id) +" tries to resend a demand...")
+      print(bcolors.WARNING + "Home "+ str(self.home_id) +" tries to resend a demand..."  + bcolors.ENDC)
       self.mq_demand.send(msg, type=home_id)
-    self.print_state()
     
   
   def run(self):
