@@ -1,5 +1,5 @@
 import weather
-import season
+import season.season as season
 import time
 import market
 from market import Market
