@@ -1,6 +1,8 @@
 import tkinter as tk
 import signal
 import os
+import sys
+from threading import Thread
 
 class Window:
     def __init__(self):
@@ -17,8 +19,9 @@ class Window:
         self.submit_button.pack()
 
         # Start the main event loop
-        self.root.mainloop()
-        
+        self.run_window = Thread(target=self.root.mainloop())
+        self.run_window.start()
+
     def crise(self):
         os.kill(os.getppid(), signal.SIGUSR1)
 

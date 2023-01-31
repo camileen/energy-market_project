@@ -9,7 +9,7 @@ import threading
 import multiprocessing
 import signal
 from threading import Thread
-from multiprocessing import Process, Lock
+from multiprocessing import Process, Lock, active_children
 import socket
 import termios
 import tty
@@ -39,20 +39,25 @@ class Market:
         self.market_change_return = market_change_return
         self.price = PRICE
 
+        #signal.signal(signal.SIGTERM, self.signal_handler1)
+
         #print("Market Process id:" , os.getpid())
         self.show_season = Process(target=self.get_season)
         self.show_season.start()
         self.show_weather = Thread(target=self.get_weather)
         self.show_weather.start()
+
+        self.socket = Thread(target=self.market_socket)
+        self.socket.start()
         
         signal.signal(signal.SIGUSR1, self.signal_handler_crise)
         signal.signal(signal.SIGUSR2, self.signal_handler_promotion)
-        self.external_process = Process(target=external.Window)
+        self.external_object = external.Window()
+        self.external_process = Process(target=self.external_object)
         self.external_process.start()
         #self.external_process.join()
 
-        #self.socket = Thread(target=self.market_socket)
-        #self.socket.start()
+        
 
         self.market_socket()
 
@@ -119,6 +124,15 @@ class Market:
         self.price -= 0.5
         print("promo: ---------------",self.price)
         #os.kill(self.childProcess.pid, signal.SIGKILL)
+
+    
+    # Signal ----------------------
+    def signal_handler1(self, sig,frame):
+        self.external_object.root.lift()
+        for child in active_children():
+            child.kill()
+        print("Exit!!!")
+        sys.exit(0)
 
     
     

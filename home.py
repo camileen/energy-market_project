@@ -91,10 +91,10 @@ class Home:
                         data_send = struct.pack('2d', *message)
                         client_socket.send(data_send)
                         data = client_socket.recv(16)
-                        print("Home 1 Buy: ", -stockage,"energy from Market")
-                        print("Price", struct.unpack('2d',data)[0])
+                        print("Home 2 Buy: ", -stockage,"energy from Market with Price", struct.unpack('2d',data)[0])
+                        #print("Price", struct.unpack('2d',data)[0])
                         money = money -(-stockage) * struct.unpack('2d',data)[0]
-                        print("Home 1 have", money, "left")
+                        print("Home 2 have", money, "left")
                         stockage = 0
                         client_socket.close()
                     
@@ -106,8 +106,8 @@ class Home:
                     data_send = struct.pack('2d', *message)
                     client_socket.send(data_send)
                     data = client_socket.recv(16)
-                    print("Home 2 Sell: ", stockage - 3,"energy from Market")
-                    print("Price", struct.unpack('2d',data)[0])
+                    print("Home 2 Sell: ", stockage - 3,"energy from Market with Price", struct.unpack('2d',data)[0])
+                    #print("Price", struct.unpack('2d',data)[0])
                     money += (stockage - 3) * struct.unpack('2d',data)[0]
                     print("Home 2 have", money, "left")
                     stockage = 0
@@ -139,8 +139,8 @@ class Home:
                         data_send = struct.pack('2d', *message)
                         client_socket.send(data_send)
                         data = client_socket.recv(16)
-                        print("Home 3 Buy: ", -stockage,"energy from Market")
-                        print("Price", struct.unpack('2d',data)[0])
+                        print("Home 3 Buy: ", -stockage,"energy from Market with Price", struct.unpack('2d',data)[0])
+                        #print("Price", struct.unpack('2d',data)[0])
                         money = money -(-stockage) * struct.unpack('2d',data)[0]
                         print("Home 3 have", money, "left")
                         stockage = 0
@@ -159,8 +159,8 @@ class Home:
                         data_send = struct.pack('2d', *message)
                         client_socket.send(data_send)
                         data = client_socket.recv(16)
-                        print("Home 3 Sell: ", stockage - 3,"energy from Market")
-                        print("Price", struct.unpack('2d',data)[0])
+                        print("Home 3 Sell: ", stockage - 3,"energy from Market with Price", struct.unpack('2d',data)[0])
+                        #print("Price", struct.unpack('2d',data)[0])
                         money += (stockage - 3) * struct.unpack('2d',data)[0]
                         print("Home 3 have", money, "left")
                         stockage = 0

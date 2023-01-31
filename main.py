@@ -10,6 +10,7 @@ from multiprocessing import Process, Value, Array, Lock, Queue, active_children
 import signal
 import sys
 import os
+import external
 
 T_CONSTANT = 0.001   # temperature
 R_CONSTANT = 0.002   # rain
@@ -27,7 +28,7 @@ def signal_handler(sig, frame):
     #os.kill(market_process.pid(),sig)
     #market_process.kill()
     for child in active_children():
-        child.kill()
+        child.terminate()
     print("Exit!!!")
     sys.exit(0)
 
