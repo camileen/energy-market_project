@@ -1,4 +1,4 @@
-import multiprocessing
+from multiprocessing import Process
 import sysv_ipc
 import random
 
@@ -31,7 +31,7 @@ def home(initial_params, id, energy_trade, keys):
 
 
 if __name__ == "__main__":
-  HOMES_NB = 2
+  HOMES_NB = 3
   homes = []
   #inital_params = init_params(HOMES_NB)
   initial_params = [(1, 5, 6), (100, 7, 8)] 
@@ -41,7 +41,7 @@ if __name__ == "__main__":
   mq_response = sysv_ipc.MessageQueue(KEYS[1], sysv_ipc.IPC_CREAT)
 
   for i in range(HOMES_NB):
-    homes.append(multiprocessing.Process(target=home, args=(initial_params[i], i + 1, Home.ENERGY_TRADES[0], KEYS)))
+    homes.append(Process(target=home, args=(initial_params[1], i + 1, Home.ENERGY_TRADES[i%len(Home.ENERGY_TRADES)], KEYS)))
     homes[i].start()
   
   for i in range(HOMES_NB):
