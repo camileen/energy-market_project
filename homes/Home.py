@@ -1,5 +1,7 @@
 import sysv_ipc
 import random
+import socket
+import struct
 import sys
 
 GIVE_ONLY = 1
@@ -9,7 +11,8 @@ ENERGY_TRADES = [GIVE_ONLY, SELL_ONLY, GIVE_AND_SELL]
 
 INITIAL_MONEY = 100
 
-
+HOST = "localhost"
+PORT = 23333
 
 class Home:
   """
@@ -115,18 +118,25 @@ class Home:
           self.send_market_sell_request()
     else: # lack of energy
       print("Home "+ str(self.home_id) + ": lack of energy in exchange()\n")
+      demand = self.energy_threshold - self.energy + 1
+      
       try:
-        demand = self.energy_threshold - self.energy + 1
+        # Ask givers and take from givers
         msg = str(demand).encode()
         print("Home "+ str(self.home_id) +" tries to send a demand: " + str(demand))
         self.mq_demand.send(msg, type=self.home_id)
         print("Home "+ str(self.home_id) + " tries to receive a response...")
-        _, _ = self.mq_response.receive(type=self.home_id)
+        _, _ = self.mq_response.receive(block=False,type=self.home_id)
         self.energy += demand
         self.print_state()
-      except NoGivers:
-        self.send_market_request()
-        self.wait_response()
+      except sysv_ipc.BusyError:
+        # Buy energy to the market
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+          client_socket.connect((HOST, PORT))
+          msg = [demand, 0]
+          client_socket.sendall(struct.pack('2d', *msg))
+          response = client_socket.recv(1024)
+          print("Market's response: ", struct.unpack('2d', response))
       except EnoughEnergy:
         pass
 
