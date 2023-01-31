@@ -1,7 +1,6 @@
 import tkinter as tk
 import signal
 import os
-import sys
 from threading import Thread
 
 class Window:
@@ -27,3 +26,6 @@ class Window:
 
     def promotion(self):
         os.kill(os.getppid(), signal.SIGUSR2)
+
+    def show_window(self):
+        self.root.lift()

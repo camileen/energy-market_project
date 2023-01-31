@@ -2,17 +2,16 @@ import random
 import time
 from threading import Thread
 from queue import Queue
-from multiprocessing import Process, Value, Array, Lock
+from multiprocessing import Lock
 
 mutex = Lock()
 temp_queue = Queue()
 
 season_temp = [15, 30, 15, 5]
 class Weather:
-    def __init__(self, meteo_shared,temperature_flag,season_change,weather_change_return):
+    def __init__(self, meteo_shared,temperature_flag,weather_change_return):
         self.meteo_shared = meteo_shared
         self.temperature_flag = temperature_flag
-        self.season_change = season_change
         self.weather_change_return = weather_change_return
 
     def basic_temp(self):

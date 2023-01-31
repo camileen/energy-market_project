@@ -13,7 +13,6 @@ E_CONSTANT = 0.01    # source
 S_COMSTANT = 0.1     # season
 
 # Event -----------------
-season_change = Event()
 weather_change_return = Event()
 market_change_return = Event()
 
@@ -36,18 +35,14 @@ temperature_flag = Value('i', 0)
 
 
 # Process-----------------------
-weather_object = Weather(meteo_shared,temperature_flag,season_change,weather_change_return)
+weather_object = Weather(meteo_shared,temperature_flag,weather_change_return)
 weather_process = Process(target=weather_object.run)
 weather_process.start()
 
-market_process = Process(target = Market, args=(meteo_shared,temperature_flag, meteo,season_change,market_change_return))
+market_process = Process(target = Market, args=(meteo_shared,temperature_flag, meteo, market_change_return ))
 market_process.start()
 
-season_process = Process(target= Season, args=(season_change,weather_change_return,market_change_return))
+season_process = Process(target= Season, args=(weather_change_return,market_change_return))
 season_process.start()
 
 signal.pause()
-
-
-
-

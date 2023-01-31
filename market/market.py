@@ -1,19 +1,10 @@
-import random
-import time
-import os
 import sys
-import weather
-import season
 import struct
-import threading
-import multiprocessing
 import signal
 from threading import Thread
 from multiprocessing import Process, Lock, active_children
 import socket
-import termios
-import tty
-import external
+import external.external
 
 season_list = ["Spring", "Summer", "Automn", "Winter"]
 mutex = Lock()
@@ -28,20 +19,24 @@ PRICE = 1.45
 HOST = "localhost"
 PORT = 23333
 
+#counter
+buy = 0
+sell = 0
+
 
 # ---------------------------- Market ---------------------------------------------------------
 class Market:
-    def __init__(self,meteo_shared,temperature_flag, meteo,season_change, market_change_return ):
+    def __init__(self,meteo_shared,temperature_flag, meteo, market_change_return ):
         self.meteo_shared = meteo_shared
         self.temperature_flag = temperature_flag
         self.meteo = meteo
-        self.season_change = season_change
         self.market_change_return = market_change_return
         self.price = PRICE
+        self.buy = buy
+        self.sell = sell
 
-        #signal.signal(signal.SIGTERM, self.signal_handler1)
+        signal.signal(signal.SIGINT, self.signal_handler1)
 
-        #print("Market Process id:" , os.getpid())
         self.show_season = Process(target=self.get_season)
         self.show_season.start()
         self.show_weather = Thread(target=self.get_weather)
@@ -52,15 +47,8 @@ class Market:
         
         signal.signal(signal.SIGUSR1, self.signal_handler_crise)
         signal.signal(signal.SIGUSR2, self.signal_handler_promotion)
-        self.external_object = external.Window()
-        self.external_process = Process(target=self.external_object)
+        self.external_process = Process(target=external.external.Window)
         self.external_process.start()
-        #self.external_process.join()
-
-        
-
-        self.market_socket()
-
 
     def get_season(self): 
         i=0
@@ -99,28 +87,41 @@ class Market:
                 home_socket_thread.start()
 
     def handle_socket(self,client_socket, address):
-        print("------------------- Connected to client: ", address)
+        #print("------------------- Connected to client: ", address)
         data = client_socket.recv(16)
-        print("Server receive:", struct.unpack('2d',data))
-        while len(data):
-            #price = round(self.get_price(), 4)
-            message = [self.price,0]
-            data_send = struct.pack('2d',*message)
-            client_socket.send(data_send)
-            data = client_socket.recv(1024)
-        print("------------------- Disconnecting from client: ", address)
+        #print("Server receive:", struct.unpack('2d',data))
+        if struct.unpack('2d',data)[1] == 0.0:
+            self.buy +=1
+            print("--------------------------------Market receive a BUY demande")
+        else :
+            self.sell +=1
+            print("--------------------------------Market receive a SELL demande")
+        #price = round(self.get_price(), 4)
+        message = [self.price,0]
+        data_send = struct.pack('2d',*message)
+        client_socket.send(data_send)
+        #print("------------------- Disconnecting from client: ", address)
         #client_socket.close()
-
-
+        if (self.buy - self.sell >= 3):
+            print("--------------------------------many buy demande ---- price increase!!!")
+            self.price += 0.2
+            self.buy = 0
+            self.sell = 0
+        elif (self.sell - self.buy >= 3):
+            print("--------------------------------many sell demande ---- price reduction!!!")
+            self.price -= 0.2
+            self.buy = 0
+            self.sell = 0
+        
 
     def signal_handler_crise(self,signum, frame):
-        print("Crise recieve!!!")
+        print("--------------------------------Crise recieve!!!")
         self.price += 0.5
         print("crise: ---------------",self.price)
         #os.kill(self.childProcess.pid, signal.SIGKILL)
 
     def signal_handler_promotion(self,signum, frame):
-        print("Promotion recieve!!!")
+        print("--------------------------------Promotion recieve!!!")
         self.price -= 0.5
         print("promo: ---------------",self.price)
         #os.kill(self.childProcess.pid, signal.SIGKILL)
@@ -128,13 +129,8 @@ class Market:
     
     # Signal ----------------------
     def signal_handler1(self, sig,frame):
-        self.external_object.root.lift()
+        #external.external.Window.show_window(external.external.Window)
         for child in active_children():
             child.kill()
-        print("Exit!!!")
+        print("Exit!!! Market")
         sys.exit(0)
-
-    
-    
-
-    
