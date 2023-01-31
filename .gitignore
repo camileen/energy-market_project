@@ -3,3 +3,4 @@ __pycache__/
 
 # Ignore files
 *.txt
+market/market_xinyi.py
