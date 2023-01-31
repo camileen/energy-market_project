@@ -84,7 +84,7 @@ class Home:
     Prints home's id and current energy, producing and consuming rates
     """
 
-    print("Home "+ str(self.home_id) + ": energy=" + str(self.energy) + ", money=" + str(self.money))
+    print("Home "+ str(self.home_id) + ": energy=" + str(self.energy) + ", money=" + str(round(self.money, 2)))
     #print("Home "+ str(self.home_id) + " producing rate: " + str(self.producing_rate) + " times/s")
     #print("Home "+ str(self.home_id) + " consuming rate: " + str(self.consuming_rate) + " times/s")
 
@@ -159,7 +159,7 @@ class Home:
       client_socket.sendall(struct.pack('2d', *msg))
       response = client_socket.recv(1024)
       price = struct.unpack('2d', response)[0]
-      print(bcolors.OKGREEN + "Market's response: current price of energy is " + str(price) + bcolors.ENDC)
+      print(bcolors.OKGREEN + "Market's response: current price of energy is " + str(round(price, 2)) + bcolors.ENDC)
       # Update energy and money
       self.money += price * offer
       self.energy -= offer
@@ -182,7 +182,7 @@ class Home:
       client_socket.sendall(struct.pack('2d', *msg))
       response = client_socket.recv(1024)
       price = struct.unpack('2d', response)[0]
-      print(bcolors.OKCYAN + "Market's responds current price of energy is: " + str(price) + bcolors.ENDC)
+      print(bcolors.OKCYAN + "Market's responds current price of energy is: " + str(round(price, 2)) + bcolors.ENDC)
       # Update energy and money
       if self.money >= (price * demand):
         self.money -= price * demand

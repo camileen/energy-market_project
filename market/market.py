@@ -74,7 +74,7 @@ class Market:
 
     def get_price(self):
         self.price = 0.99*self.price + 0.001*(self.meteo_shared[0]-3*self.meteo_shared[1])
-        print("instant price:", self.price)
+        print("instant price:", round(self.price, 2))
         return self.price
 
     def market_socket(self):
