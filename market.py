@@ -45,7 +45,7 @@ class Market:
         self.show_weather = Thread(target=self.get_weather)
         self.show_weather.start()
         
-        signal.signal(signal.SIGUSR1, self.signal_handler1)
+        signal.signal(signal.SIGUSR1, self.signal_handler_crise)
         signal.signal(signal.SIGUSR2, self.signal_handler_promotion)
         self.external_process = Process(target=external.Window)
         self.external_process.start()
@@ -80,7 +80,7 @@ class Market:
                     mutex.release()
 
     def get_price(self):
-        self.price = 0.99*self.price + 0.001*(self.meteo_shared[0]+3*self.meteo_shared[1])
+        self.price = 0.99*self.price + 0.001*(self.meteo_shared[0]-3*self.meteo_shared[1])
         print("instant price:", self.price)
         return self.price
 
@@ -94,8 +94,8 @@ class Market:
                 home_socket_thread.start()
 
     def handle_socket(self,client_socket, address):
-        print("Connected to client: ", address)
-        data = client_socket.recv(8)
+        print("------------------- Connected to client: ", address)
+        data = client_socket.recv(16)
         print("Server receive:", struct.unpack('2d',data))
         while len(data):
             #price = round(self.get_price(), 4)
@@ -103,12 +103,12 @@ class Market:
             data_send = struct.pack('2d',*message)
             client_socket.send(data_send)
             data = client_socket.recv(1024)
-        print("Disconnecting from client: ", address)
-        client_socket.close()
+        print("------------------- Disconnecting from client: ", address)
+        #client_socket.close()
 
 
 
-    def signal_handler1(self,signum, frame):
+    def signal_handler_crise(self,signum, frame):
         print("Crise recieve!!!")
         self.price += 0.5
         print("crise: ---------------",self.price)
