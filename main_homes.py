@@ -1,9 +1,14 @@
 from multiprocessing import Process
 import sysv_ipc
 import random
+import signal
 
 import homes.Home as Home
+import end.end as end
 
+
+# Signal -----------------
+signal.signal(signal.SIGINT, end.signal_handler)
 
 def init_params(HOMES_NB):
   """ Generates a tuple of three random integers

@@ -1,10 +1,10 @@
 from multiprocessing import Process, Event, active_children, Array, Value
 import signal
-import sys
 
 from weather.weather import Weather
 from season.season import Season
 from market.market import Market
+import end.end as end
 
 
 T_CONSTANT = 0.001   # temperature
@@ -16,17 +16,8 @@ S_COMSTANT = 0.1     # season
 weather_change_return = Event()
 market_change_return = Event()
 
-# Signal ----------------------
-def signal_handler(sig, frame):
-    for child in active_children():
-        child.terminate()
-    print("Exit!!!")
-    sys.exit(0)
-
-signal.signal(signal.SIGINT, signal_handler)
-
-
-
+# Signal -----------------
+signal.signal(signal.SIGINT, end.signal_handler)
 
 # Shared Memory------------
 meteo = [0,0]
