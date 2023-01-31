@@ -36,6 +36,16 @@ class Home:
     Decreases the energy of the home
   produce()
     Increses the energy of the home
+  exchange()
+    Exchange energy with other home or with the market
+  give()
+    Fulfills one request of another home if possible
+  ask_home()
+    Sends a demand of a certain amount of energy
+  sell_to_market()
+    Sends energy to the market within a socket
+  buy_to_market()
+    Sends a demand of energy to the market within a socket
   run()
     Launches the home in an infinite loop to consume, produce and exchange energy
   """
@@ -105,6 +115,11 @@ class Home:
       print("Home "+ str(self.home_id) +" PRODUCE ERROR : lack of energy!")
 
   def exchange(self):
+    """
+    Exchanges energy with other homes or the market depending on
+    the amount of energy, money and energy trade
+    """
+
     if self.energy > self.energy_threshold:
       if self.energy_trade == GIVE_ONLY:
         try:
@@ -129,9 +144,14 @@ class Home:
         
 
   def send_to_market(self):
+    """
+    Sends surplus of energy to the market within a socket. The latter sends back the price of
+    per unit of energy: the home updates its amount of money and of energy
+    """
+
     offer = self.energy - self.energy_threshold
     print("Home "+ str(self.home_id) + " want to sell: " + str(offer))
-    # Sell energy to the market
+    # Sells energy to the market
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
       client_socket.connect((HOST, PORT))
       msg = [offer, 1]
@@ -145,6 +165,16 @@ class Home:
       self.print_state()
 
   def buy_to_market(self, demand):
+    """
+    Buys energy to the market only if there is enough money by sending a request
+    within a socket.
+
+    Parameters
+    ---------
+    demand : int
+      The amount of energy requested by the home
+    """
+
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
       client_socket.connect((HOST, PORT))
       msg = [demand, 0]
@@ -158,7 +188,19 @@ class Home:
         self.energy += demand
       self.print_state()
 
+
   def ask_home(self, demand):
+    """
+    Asks home for a certain amount of energy. Waits three seconds before looking
+    the offers in the corresponding message queue. 
+    Raises a BusyError if there is no giver.
+
+    Parameters
+    ----------
+    demand : int
+      The amount of energy requested by the home
+    """
+
     msg = str(demand).encode()
     print("Home "+ str(self.home_id) +" tries to send a demand: " + str(demand))
     self.mq_demand.send(msg, type=self.home_id)
@@ -169,6 +211,13 @@ class Home:
     self.print_state()
 
   def give(self):
+    """
+    Takes a demand in the corresponding message queue and fulfills it if possible.
+    If not, it sends back the demand in the message queue.
+    Waits five seconds before taking a demand.
+    If there is no demand a BusyError is raised. 
+    """
+
     surplus = self.energy - self.energy_threshold
     for i in range(3):
       print("Home "+ str(self.home_id) +" tries to get a demand...")
