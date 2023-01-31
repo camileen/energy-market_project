@@ -8,7 +8,6 @@ import external.external
 
 season_list = ["Spring", "Summer", "Automn", "Winter"]
 mutex = Lock()
-access_price = Lock()
 
 T_CONSTANT = 0.001   # temperature
 R_CONSTANT = 0.002   # rain
@@ -26,10 +25,9 @@ sell = 0
 
 # ---------------------------- Market ---------------------------------------------------------
 class Market:
-    def __init__(self,meteo_shared,temperature_flag, meteo, market_change_return ):
+    def __init__(self,meteo_shared,temperature_flag, market_change_return ):
         self.meteo_shared = meteo_shared
         self.temperature_flag = temperature_flag
-        self.meteo = meteo
         self.market_change_return = market_change_return
         self.price = PRICE
         self.buy = buy
