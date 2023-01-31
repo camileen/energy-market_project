@@ -210,6 +210,7 @@ class Home:
     self.energy += demand
     self.print_state()
 
+
   def give(self):
     """
     Takes a demand in the corresponding message queue and fulfills it if possible.
@@ -219,20 +220,18 @@ class Home:
     """
 
     surplus = self.energy - self.energy_threshold
-    for i in range(3):
-      print("Home "+ str(self.home_id) +" tries to get a demand...")
-      time.sleep(5)
-      msg, home_id = self.mq_demand.receive(block=False)
-      demand = int(msg.decode())
-      print("Home " + str(home_id) + " demands: " + msg.decode())
-      if surplus >= demand:
-        print("Home "+ str(self.home_id) +" tries to send a response...")
-        self.mq_response.send("OK".encode(), type=home_id)
-        self.energy -= demand
-        break
-      else:
-        print("Home "+ str(self.home_id) +" tries to resend a demand...")
-        self.mq_demand.send(msg, type=home_id)
+    print("Home "+ str(self.home_id) +" tries to get a demand...")
+    time.sleep(5)
+    msg, home_id = self.mq_demand.receive(block=False)
+    demand = int(msg.decode())
+    print("Home " + str(home_id) + " demands: " + msg.decode())
+    if surplus >= demand:
+      print("Home "+ str(self.home_id) +" tries to send a response...")
+      self.mq_response.send("OK".encode(), type=home_id)
+      self.energy -= demand
+    else:
+      print("Home "+ str(self.home_id) +" tries to resend a demand...")
+      self.mq_demand.send(msg, type=home_id)
     self.print_state()
     
   
@@ -242,10 +241,10 @@ class Home:
     in this order
     """
 
-    #while True:
-    self.consume()
-    self.produce()
-    self.exchange()
+    while True:
+      self.consume()
+      self.produce()
+      self.exchange()
 
 
   
