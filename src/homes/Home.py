@@ -1,3 +1,4 @@
+from multiprocessing import Process
 import sysv_ipc
 import random
 import socket
@@ -17,7 +18,7 @@ INITIAL_MONEY = 100
 HOST = "localhost"
 PORT = 23333
 
-class Home:
+class Home(Process):
   """
   A class that represent an Home
 
@@ -64,6 +65,7 @@ class Home:
       The type of homes' energy trade
     """
 
+    super().__init__()
     (initial_energy, initial_producing_rate, initial_consuming_rate) = initial_params
     self.home_id = home_id
     self.energy = initial_energy
@@ -79,6 +81,19 @@ class Home:
       print(bcolors.FAIL + "Cannot connect to message queue", keys, ", terminating." + bcolors.ENDC)
       sys.exit(1) 
     
+
+  def run(self):
+    """
+    Launches the home in an infinite loop to consume, produce and exchange energy
+    in this order
+    """
+
+    while True:
+      self.consume()
+      self.produce()
+      self.exchange()
+
+      
   def print_state(self):
     """
     Prints home's id and current energy, producing and consuming rates
@@ -232,16 +247,7 @@ class Home:
       self.mq_demand.send(msg, type=home_id)
     
   
-  def run(self):
-    """
-    Launches the home in an infinite loop to consume, produce and exchange energy
-    in this order
-    """
-
-    while True:
-      self.consume()
-      self.produce()
-      self.exchange()
+  
 
 
   
