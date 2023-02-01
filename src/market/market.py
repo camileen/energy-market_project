@@ -24,15 +24,17 @@ sell = 0
 
 
 # ---------------------------- Market ---------------------------------------------------------
-class Market:
+class Market(Process):
     def __init__(self,meteo_shared,temperature_flag, market_change_return ):
+        super().__init__()
         self.meteo_shared = meteo_shared
         self.temperature_flag = temperature_flag
         self.market_change_return = market_change_return
         self.price = PRICE
         self.buy = buy
         self.sell = sell
-
+        
+    def run(self):
         signal.signal(signal.SIGINT, self.signal_handler1)
 
         self.show_season = Process(target=self.get_season)
