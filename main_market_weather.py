@@ -2,7 +2,7 @@ from multiprocessing import Process, Event, active_children, Array, Value
 import signal
 
 from weather.weather import Weather
-from season.season import Season
+from weather.season import Season
 from market.market import Market
 import end.end as end
 
