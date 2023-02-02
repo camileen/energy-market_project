@@ -1,9 +1,9 @@
+from threading import Thread
 import tkinter as tk
 import signal
 import os
-from threading import Thread
 
-class Window:
+class God:
     def __init__(self):
         # Create the main window
         self.root = tk.Tk()

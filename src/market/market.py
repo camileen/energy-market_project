@@ -1,10 +1,11 @@
-import sys
+from multiprocessing import Process, Lock, active_children
+from threading import Thread
+import socket
 import struct
 import signal
-from threading import Thread
-from multiprocessing import Process, Lock, active_children
-import socket
-import external.external
+import sys
+
+from external.god import God
 
 season_list = ["Spring", "Summer", "Automn", "Winter"]
 mutex = Lock()
@@ -14,6 +15,7 @@ R_CONSTANT = 0.002   # rain
 E_CONSTANT = 0.01    # source
 S_COMSTANT = 0.1     # season
 PRICE = 1.45
+PRICE_THRESHOLD = 0.1
 
 HOST = "localhost"
 PORT = 23333
@@ -47,7 +49,7 @@ class Market(Process):
         
         signal.signal(signal.SIGUSR1, self.signal_handler_crise)
         signal.signal(signal.SIGUSR2, self.signal_handler_promotion)
-        self.external_process = Process(target=external.external.Window)
+        self.external_process = Process(target=God)
         self.external_process.start()
 
     def get_season(self): 
@@ -122,9 +124,12 @@ class Market(Process):
 
     def signal_handler_promotion(self,signum, frame):
         print("--------------------------------Promotion recieve!!!")
-        self.price -= 0.5
-        print("promo: ---------------",self.price)
-        #os.kill(self.childProcess.pid, signal.SIGKILL)
+        if (self.price > PRICE_THRESHOLD):
+            self.price -= 0.5
+            print("promo: ---------------",self.price)
+            #os.kill(self.childProcess.pid, signal.SIGKILL)
+        else:
+            print("promo: ---------------","Even God can't create negative price...")
 
     
     # Signal ----------------------
