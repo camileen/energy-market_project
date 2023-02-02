@@ -27,9 +27,9 @@ sell = 0
 
 # ---------------------------- Market ---------------------------------------------------------
 class Market(Process):
-    def __init__(self,meteo_shared,weather_update, market_change_return ):
+    def __init__(self,shared_meteo,weather_update, market_change_return ):
         super().__init__()
-        self.meteo_shared = meteo_shared
+        self.shared_meteo = shared_meteo
         self.weather_update = weather_update
         self.market_change_return = market_change_return
         self.price = PRICE
@@ -65,13 +65,13 @@ class Market(Process):
         #print("get_weather in process:", os.getpid(), "child de:", os.getppid())
         while True:
             if self.weather_update.value == 1:
-                with self.meteo_shared.get_lock():
-                    print("[Temperature, Rain]: ", self.meteo_shared[:])
+                with self.shared_meteo.get_lock():
+                    print("[Temperature, Rain]: ", self.shared_meteo[:])
                     self.get_price()
                     self.weather_update.value = 0
 
     def get_price(self):
-        self.price = 0.99*self.price + 0.001*(self.meteo_shared[0]-3*self.meteo_shared[1])
+        self.price = 0.99*self.price + 0.001*(self.shared_meteo[0]-3*self.shared_meteo[1])
         print("instant price:", round(self.price, 2))
         return self.price
 

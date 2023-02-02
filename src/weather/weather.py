@@ -13,9 +13,9 @@ WINTER = 5
 season_temp = [SPRING, SUMMER, AUTUMN, WINTER]
 
 class Weather(Process):
-    def __init__(self, meteo_shared,weather_update,weather_change_return):
+    def __init__(self, shared_meteo,weather_update,weather_change_return):
         super().__init__()
-        self.meteo_shared = meteo_shared # Array
+        self.shared_meteo = shared_meteo # Array
         self.weather_update = weather_update # Integer 0 or 1
         self.season_change = weather_change_return # Event
     
@@ -40,10 +40,10 @@ class Weather(Process):
             if not temp_queue.empty():
                 temp = temp_queue.get()
             if temp != -100:
-                with self.meteo_shared.get_lock():
-                    self.meteo_shared[0] = temp + random.randint(-10, 10)  # temperature
-                    self.meteo_shared[1] = random.randint(0,5)    # rain
-                    #print("real weather:",self.meteo_shared[:])
+                with self.shared_meteo.get_lock():
+                    self.shared_meteo[0] = temp + random.randint(-10, 10)  # temperature
+                    self.shared_meteo[1] = random.randint(0,5)    # rain
+                    #print("real weather:",self.shared_meteo[:])
                     self.weather_update.value = 1     # update
                 time.sleep(5)
 

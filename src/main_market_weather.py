@@ -15,15 +15,14 @@ market_change_return = Event()
 signal.signal(signal.SIGINT, signal_handler)
 
 # Shared Memory between weather, market and season parallel processes ------------
-meteo = [0,0]
-meteo_shared = Array('i', [0,0])
+shared_meteo = Array('i', [0,0])
 weather_update = Value('i', 0)
 
 # Process-----------------------
-weather = Weather(meteo_shared, weather_update, weather_change_return)
+weather = Weather(shared_meteo, weather_update, weather_change_return)
 weather.start()
 
-market_process = Market(meteo_shared, weather_update, market_change_return)
+market_process = Market(shared_meteo, weather_update, market_change_return)
 market_process.start()
 
 season_process = Season(weather_change_return,market_change_return)
