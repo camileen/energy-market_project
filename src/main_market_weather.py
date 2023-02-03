@@ -1,10 +1,10 @@
-from multiprocessing import Event, Array, Value
+from multiprocessing import Event, Array, Value, active_children
 import signal
 
 from weather.weather import Weather
 from weather.season import Season
 from market.market import Market
-from end.end import signal_handler
+from end.end import signal_handler, print_children
 
 
 # Event -----------------
@@ -27,5 +27,8 @@ market_process.start()
 
 season_process = Season(weather_change_return,market_change_return)
 season_process.start()
+
+print_children("****** Children of main_market_weather.py: ******")
+
 
 signal.pause()

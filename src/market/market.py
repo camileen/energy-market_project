@@ -6,6 +6,7 @@ import signal
 import sys
 
 from external.god import God
+from end.end import print_children
 
 season_list = ["Spring", "Summer", "Automn", "Winter"]
 mutex = Lock()
@@ -39,7 +40,7 @@ class Market(Process):
     def run(self):
         signal.signal(signal.SIGINT, self.signal_handler1)
 
-        self.show_season = Process(target=self.get_season)
+        self.show_season = Process(target=self.get_season, name="Show-season")
         self.show_season.start()
         self.show_weather = Thread(target=self.get_weather)
         self.show_weather.start()
@@ -49,8 +50,10 @@ class Market(Process):
         
         signal.signal(signal.SIGUSR1, self.signal_handler_crise)
         signal.signal(signal.SIGUSR2, self.signal_handler_promotion)
-        self.external_process = Process(target=God)
+        self.external_process = Process(target=God, name="God")
         self.external_process.start()
+
+        print_children("****** Children of market: ******")
 
     def get_season(self): 
         i=0

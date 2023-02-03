@@ -3,6 +3,7 @@ import time
 from threading import Thread
 from queue import Queue
 from multiprocessing import Lock, Process
+from end.end import print_children
 
 temp_queue = Queue()
 
@@ -24,6 +25,7 @@ class Weather(Process):
         global_temp.start()
         show_temp = Thread(target=self.temperature)
         show_temp.start()
+        print_children("****** Children of Weather: ******")
 
     def get_season_temp(self):
         turn = 0

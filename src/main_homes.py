@@ -4,11 +4,11 @@ import random
 import signal
 
 from homes.Home import Home, ENERGY_TRADES
-import end.end as end
+from end.end import signal_handler, print_children
 
 
 # Signal -----------------
-signal.signal(signal.SIGINT, end.signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
 
 def init_params(HOMES_NB):
   """ Generates a tuple of three random integers
@@ -43,6 +43,8 @@ if __name__ == "__main__":
   for i in range(HOMES_NB):
     homes.append(Home(initial_params[i], i + 1, ENERGY_TRADES[i%len(ENERGY_TRADES)], KEYS))
     homes[i].start() # Automatically executes run() method in a separate process
+  
+  print_children("****** Children of Homes.py: ******")
   
   for i in range(HOMES_NB):
     homes[i].join()
