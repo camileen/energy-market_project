@@ -1,7 +1,7 @@
 from multiprocessing import Event, Array, Value
 import signal
 
-from end.end import signal_handler, print_children
+from end.end import signal_handler
 from weather.weather import Weather
 from weather.season import Season
 from market.market import Market
@@ -25,5 +25,3 @@ if __name__ == "__main__":
 
   season_process = Season(season_event)
   season_process.start()
-
-  print_children("Children of main_market_weather.py: ")

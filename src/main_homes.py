@@ -4,7 +4,7 @@ import random
 import signal
 
 from homes.Home import Home, ENERGY_TRADES
-from end.end import signal_handler, print_children
+from end.end import signal_handler
 
 
 # Signal -----------------
@@ -43,9 +43,7 @@ if __name__ == "__main__":
   for i in range(HOMES_NB):
     homes.append(Home(initial_params[i], i + 1, ENERGY_TRADES[i%len(ENERGY_TRADES)], KEYS))
     homes[i].start() # Automatically executes run() method in a separate process
-  
-  print_children("****** Children of Homes.py: ******")
-  
+    
   for i in range(HOMES_NB):
     homes[i].join()
   

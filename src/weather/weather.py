@@ -3,7 +3,7 @@ import time
 from threading import Thread
 from queue import Queue
 from multiprocessing import Lock, Process
-from end.end import print_children
+
 
 temp_queue = Queue()
 
@@ -14,26 +14,25 @@ WINTER = 5
 season_temp = [SPRING, SUMMER, AUTUMN, WINTER]
 
 class Weather(Process):
-    def __init__(self, shared_meteo,weather_update,weather_change_return):
+    def __init__(self, shared_meteo,weather_update,season_event):
         super().__init__()
         self.shared_meteo = shared_meteo # Array
         self.weather_update = weather_update # Integer 0 or 1
-        self.season_change = weather_change_return # Event
+        self.season_event = season_event
     
     def run(self):
         global_temp = Thread(target=self.get_season_temp)
         global_temp.start()
         show_temp = Thread(target=self.temperature)
         show_temp.start()
-        print_children("****** Children of Weather: ******")
 
     def get_season_temp(self):
         turn = 0
         while True:
-            self.season_change.wait()
+            self.season_event.wait()
             index = turn % 4
             temp_queue.put(season_temp[index])
-            self.season_change.clear()
+            self.season_event.clear()
             turn += 1
 
     def temperature(self):
@@ -45,7 +44,6 @@ class Weather(Process):
                 with self.shared_meteo.get_lock():
                     self.shared_meteo[0] = temp + random.randint(-10, 10)  # temperature
                     self.shared_meteo[1] = random.randint(0,5)    # rain
-                    #print("real weather:",self.shared_meteo[:])
-                    self.weather_update.value = 1     # update
+                    self.weather_update.value = 1    
                 time.sleep(5)
 

@@ -100,8 +100,6 @@ class Home(Process):
     """
 
     print("Home "+ str(self.home_id) + ": energy=" + str(self.energy) + ", money=" + str(round(self.money, 2)))
-    #print("Home "+ str(self.home_id) + " producing rate: " + str(self.producing_rate) + " times/s")
-    #print("Home "+ str(self.home_id) + " consuming rate: " + str(self.consuming_rate) + " times/s")
 
 
   def consume(self):
