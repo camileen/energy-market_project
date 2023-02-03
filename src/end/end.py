@@ -9,9 +9,10 @@ def signal_handler(sig, frame):
     print("Exit!!!")
     sys.exit(0)
 
-def print_children(whos_children):
-    print(whos_children)
+def print_children(parent):
+    result = parent
     for child in active_children():
-        print(child.name)
+        result += child.name + " | "
+    print(result)
 
 

@@ -1,34 +1,29 @@
-from multiprocessing import Event, Array, Value, active_children
+from multiprocessing import Event, Array, Value
 import signal
 
+from end.end import signal_handler, print_children
 from weather.weather import Weather
 from weather.season import Season
 from market.market import Market
-from end.end import signal_handler, print_children
 
 
-# Event -----------------
-weather_change_return = Event() # why "return" in the name??
-market_change_return = Event()
+INITIAL_TEMPERATURE = 0
+INITIAL_RAIN = 0
 
-# Signal -----------------
-signal.signal(signal.SIGINT, signal_handler)
+if __name__ == "__main__":
+  season_event = [Event(), Event()]
+  signal.signal(signal.SIGINT, signal_handler)
 
-# Shared Memory between weather, market and season parallel processes ------------
-shared_meteo = Array('i', [0,0])
-weather_update = Value('i', 0)
+  shared_meteo = Array('i', [INITIAL_TEMPERATURE, INITIAL_RAIN])
+  weather_update = Value('i', 0) # flag used to detect a change in temperature and rain
 
-# Process-----------------------
-weather = Weather(shared_meteo, weather_update, weather_change_return)
-weather.start()
+  weather = Weather(shared_meteo, weather_update, season_event[0])
+  weather.start()
 
-market_process = Market(shared_meteo, weather_update, market_change_return)
-market_process.start()
+  market_process = Market(shared_meteo, weather_update, season_event[1])
+  market_process.start()
 
-season_process = Season(weather_change_return,market_change_return)
-season_process.start()
+  season_process = Season(season_event)
+  season_process.start()
 
-print_children("****** Children of main_market_weather.py: ******")
-
-
-signal.pause()
+  print_children("Children of main_market_weather.py: ")

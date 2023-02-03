@@ -2,12 +2,11 @@ from multiprocessing import Process
 import time
 
 class Season(Process):
-    def __init__(self, weather, market):
+    def __init__(self, events):
         super().__init__()
-        self.weather = weather
-        self.market = market
+        self.weather = events[0]
+        self.market = events[1]
 
-    # Season Signal ---------------------------------
     def run(self):
         i = 0
         while True:
