@@ -123,7 +123,7 @@ class Market(Process):
 
     def signal_handler_promotion(self,signum, frame):
         print("--------------------------------Promotion recieve!!!")
-        if (self.price > PRICE_THRESHOLD):
+        if (self.price - 0.5) > PRICE_THRESHOLD:
             self.price -= 0.5
             print("promo: ---------------",self.price)
             #os.kill(self.childProcess.pid, signal.SIGKILL)
